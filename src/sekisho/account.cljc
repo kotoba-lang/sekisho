@@ -69,6 +69,47 @@
           (and k (= "Ed25519" (or (get k "crv") (get k :crv)))
                (seq (or (get k "d") (get k :d))))))))
 
+(def wire-keys
+  "保存・持ち運びに使う **明示的な wire 形**（非修飾の文字列キー）。
+
+   ## なぜ変換を明示するのか
+
+   `clj->js` は **namespace を黙って落とす**（`:sekisho/did` → `\"did\"`）。
+   内部の修飾キーのまま保存すると、書けるのに **読み戻せない** ——
+   実測 2026-08-03、本番で口座を作った直後にリロードすると『口座を作る』に
+   戻った。鍵は localStorage に在るのに、`valid-backup?` が修飾キーを探して
+   nil を返していた。
+
+   同じ欠陥クラスがこの workspace には既に記録がある（`credits-admission/
+   normalize-run` の docstring: 『clj->js が ns を落とすので同じイベントが
+   3 つの形で存在する』）。**暗黙の変換に任せると、書き手と読み手がずれる。**
+
+   さらにこのファイルは **他実装が読む可搬な成果物**でもある —— 別の言語や
+   別サイトが復元できなければバックアップの意味がない。だから wire 形は
+   Clojure の都合ではなく、**外から読める形**として定義する。"
+  {:sekisho/version "version"
+   :sekisho/did "did"
+   :sekisho/key "key"
+   :sekisho/note "note"})
+
+(defn ->wire
+  "内部の修飾キー map → 保存用の非修飾 map。"
+  [b]
+  (when b (into {} (keep (fn [[k w]] (when-some [v (get b k)] [w v]))) wire-keys)))
+
+(defn from-wire
+  "保存された非修飾 map → 内部の修飾キー map。
+
+   **両方の形を受ける** —— 修飾キーで保存された古いデータ（2026-08-03 の
+   短時間だけ存在した）も読めるようにする。書き手が変わっても読み手は
+   壊れない、が append-only なデータを扱う repo の作法。"
+  [m]
+  (when (map? m)
+    (into {} (keep (fn [[k w]]
+                     (when-some [v (or (get m w) (get m (keyword w)) (get m k))]
+                       [k v])))
+          wire-keys)))
+
 (defn did-of
   "バックアップ → did、不正なら nil。"
   [b]

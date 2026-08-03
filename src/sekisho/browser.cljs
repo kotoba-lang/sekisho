@@ -43,7 +43,11 @@
   []
   (try
     (when-let [raw (.getItem js/localStorage account/storage-key)]
-      (let [b (js->clj (js/JSON.parse raw) :keywordize-keys true)]
+      ;; **wire 形から明示的に戻す。** `js->clj :keywordize-keys` に任せると
+      ;; 非修飾キーのまま返り、`valid-backup?` が修飾キーを探して常に nil を
+      ;; 返す（実測 2026-08-03: 本番で口座を作った直後にリロードすると
+      ;; 『口座を作る』に戻った。鍵は在るのに読めていなかった）。
+      (let [b (account/from-wire (js->clj (js/JSON.parse raw)))]
         (when (account/valid-backup? b)
           {:did (:sekisho/did b) :backup b})))
     (catch :default _ nil)))
@@ -54,7 +58,7 @@
   [backup]
   (try
     (.setItem js/localStorage account/storage-key
-              (js/JSON.stringify (clj->js backup)))
+              (js/JSON.stringify (clj->js (account/->wire backup))))
     (some? (load))
     (catch :default _ false)))
 
@@ -106,7 +110,7 @@
   "バックアップを data: URL で返す（ダウンロードさせるため）。"
   [backup]
   (str "data:application/json;charset=utf-8,"
-       (js/encodeURIComponent (js/JSON.stringify (clj->js backup) nil 2))))
+       (js/encodeURIComponent (js/JSON.stringify (clj->js (account/->wire backup)) nil 2))))
 
 (defn recovery-state
   "いまの復旧可能性。`exported?` は呼び出し側しか知らない（ダウンロードしたか）。"

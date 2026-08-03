@@ -48,3 +48,36 @@
     (is (= :backed-up (a/recovery-state {:stored? true :bound-email? true})))
     (is (= :sekisho.warn/back-up-your-key (a/warning :local-only)))
     (is (nil? (a/warning :backed-up)))))
+
+;; ── wire 形（保存・持ち運び）────────────────────────────────────────────────
+
+(deftest wire-round-trip-survives-namespace-stripping
+  (testing "**`clj->js` は namespace を黙って落とす**（`:sekisho/did` → `\"did\"`）。
+            修飾キーのまま保存すると **書けるのに読み戻せない** ——
+            実測 2026-08-03、本番で口座を作った直後にリロードすると
+            『口座を作る』に戻った。鍵は localStorage に在るのに
+            `valid-backup?` が修飾キーを探して nil を返していた。
+
+            この test はその往復を固定する。実ブラウザでしか見つからなかった
+            種類の欠陥なので、次は here で落ちる。"
+    (let [b (a/->backup pub jwk)
+          w (a/->wire b)]
+      (testing "wire は非修飾の文字列キー（他実装が読める形）"
+        (is (= #{"version" "did" "key" "note"} (set (keys w))))
+        (is (= canonical (get w "did"))))
+      (testing "戻すと元の修飾キー map に一致し、検証を通る"
+        (is (= b (a/from-wire w)))
+        (is (a/valid-backup? (a/from-wire w)))))))
+
+(deftest from-wire-accepts-both-shapes
+  (testing "書き手が変わっても読み手は壊れない。
+            修飾キーで保存された古いデータ（2026-08-03 に短時間だけ存在）も読む"
+    (let [b (a/->backup pub jwk)]
+      (is (= b (a/from-wire (a/->wire b))) "非修飾")
+      (is (= b (a/from-wire b)) "修飾のまま渡されても読める")
+      (is (a/valid-backup? (a/from-wire {"version" 1 "did" canonical "key" jwk
+                                         "note" "x"}))))))
+
+(deftest from-wire-rejects-garbage
+  (is (nil? (a/from-wire nil)))
+  (is (false? (a/valid-backup? (a/from-wire {"did" "nope"})))))

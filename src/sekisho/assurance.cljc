@@ -66,6 +66,7 @@
     :evidence/phone-controlled
     :evidence/passkey-enrolled
     :evidence/passkey-hardware
+    :evidence/humanity-verified
     :evidence/document-verified
     :evidence/liveness-checked
     :evidence/document-matches-face
@@ -80,7 +81,9 @@
    {:anonymous {}
     :contactable {:any [#{:evidence/email-controlled :evidence/phone-controlled}]}
     :rooted {:all #{:evidence/passkey-enrolled}}
-    :attested {:any [#{:evidence/passkey-hardware :evidence/document-verified}]}
+    :attested {:any [#{:evidence/passkey-hardware
+                       :evidence/document-verified
+                       :evidence/humanity-verified}]}
     :identified {:all #{:evidence/document-verified
                         :evidence/liveness-checked
                         :evidence/document-matches-face}}}
@@ -91,6 +94,9 @@
     :evidence/phone-controlled nil
     :evidence/passkey-enrolled nil
     :evidence/passkey-hardware nil
+    ;; Human Passport の onchain score attestation には明示 expiry が無い。
+    ;; 公式推奨に合わせ、Kotoba 側では生成から 90 日で更新を要求する。
+    :evidence/humanity-verified (* 90 24 60 60)
     :evidence/domain-controlled (* 365 24 60 60)
     :evidence/payment-method-verified (* 365 24 60 60)
     :evidence/document-verified (* 3 365 24 60 60)

@@ -16,6 +16,7 @@
 (def email (at :evidence/email-controlled 100))
 (def passkey (at :evidence/passkey-enrolled 100))
 (def hardware (at :evidence/passkey-hardware 100))
+(def humanity (at :evidence/humanity-verified 10))
 (def document (at :evidence/document-verified 100))
 (def liveness (at :evidence/liveness-checked 10))
 (def face-match (at :evidence/document-matches-face 10))
@@ -48,7 +49,21 @@
 
 (deftest a-document-substitutes-for-hardware-at-attested
   (is (= :attested (tier-of email passkey document)))
-  (is (= :attested (tier-of email passkey hardware))))
+  (is (= :attested (tier-of email passkey hardware)))
+  (is (= :attested (tier-of email passkey humanity))
+      "allowlisted Human Passport evidence is Sybil resistance, not identity"))
+
+(deftest humanity-evidence-neither-skips-lower-tiers-nor-identifies-a-person
+  (is (= :anonymous (tier-of humanity)))
+  (is (= :contactable (tier-of email humanity)))
+  (let [r (a/assess {:evidences [email passkey humanity] :now now})]
+    (is (= :attested (:sekisho.assurance/tier r)))
+    (is (= :identified (:sekisho.assurance/next-tier r)))
+    (is (= #{:evidence/document-verified
+             :evidence/liveness-checked
+             :evidence/document-matches-face}
+           (set (:sekisho.assurance/needs-all
+                 (:sekisho.assurance/shortfall r)))))))
 
 ;; ---------------------------------------------------------------------------
 ;; 期限
@@ -64,6 +79,13 @@
            (map :sekisho.assurance/evidence (:sekisho.assurance/expired r)))
         "『やっていない』ではなく『切れた』として報告する —— UI が『本人確認を』と『更新を』を出し分けられるように")
     (is (not (contains? (:sekisho.assurance/held r) :evidence/liveness-checked)))))
+
+(deftest human-passport-evidence-expires-after-90-days
+  (let [stale (at :evidence/humanity-verified 91)
+        r (a/assess {:evidences [email passkey stale] :now now})]
+    (is (= :rooted (:sekisho.assurance/tier r)))
+    (is (= [:evidence/humanity-verified]
+           (map :sekisho.assurance/evidence (:sekisho.assurance/expired r))))))
 
 (deftest evidence-without-an-expiry-never-goes-stale
   (is (= :rooted (tier-of (at :evidence/email-controlled 5000)
@@ -106,7 +128,9 @@
   (let [r (a/assess {:evidences [email passkey] :now now})]
     (is (= :attested (:sekisho.assurance/next-tier r)))
     (is (= {:sekisho.assurance/needs-one-of
-            [[:evidence/document-verified :evidence/passkey-hardware]]}
+            [[:evidence/document-verified
+              :evidence/humanity-verified
+              :evidence/passkey-hardware]]}
            (:sekisho.assurance/shortfall r)))))
 
 (deftest the-top-tier-has-no-next-step

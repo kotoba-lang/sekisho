@@ -47,7 +47,7 @@ base64 を切り詰めたものと**タイムスタンプ**を口座にし、さ
 
 ## 信頼の段階（`sekisho.assurance`）
 
-メール検証・パスキー・身分証・顔の一致・KYC を証拠として受け取り、段階と、
+メール検証・パスキー・身分証・顔の一致・KYC・Human Passport の検証済み結果を証拠として受け取り、段階と、
 その段階で解放されるものを返す。
 
     :anonymous → :contactable → :rooted → :attested → :identified
@@ -66,6 +66,12 @@ base64 を切り詰めたものと**タイムスタンプ**を口座にし、さ
 断られた人に次の一手が無い。返すのは順序付きの段階と、次の段階に足りていない
 ものの**名前**（`:sekisho.assurance/shortfall`）。段階は比較できるが足し算は
 できない —— メール検証 2 回は身分証 1 回にならない。
+
+Human Passport の score は `identity` adapter が EAS の schema・attester・scorer・
+期限・配備ごとの閾値を検証した後、`:evidence/humanity-verified` という 1 種類の
+証拠に翻訳する。生の score を Sekisho の点数にはしない。この証拠は Sybil 耐性として
+`:attested` の選択肢にはなるが、身分証・liveness・顔一致を代替せず
+`:identified` には到達させない。明示 expiry がない score attestation も 90 日で更新する。
 
 **段階は飛び級できない。** 身分証と顔だけあってパスキーが無い口座は
 `:contactable` 止まり。飛び級を許すと、鍵を持たない口座が身分証だけで支払い

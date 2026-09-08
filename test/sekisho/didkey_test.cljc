@@ -4,7 +4,7 @@
   2026-08-03 実測: 本番の生成器は base64 を 32 文字に切ったもの、および
   タイムスタンプを口座にしたものを吐いており、検証側は `starts-with` しか
   見ていなかったので **両方通っていた**。ここで固定するのはその再発防止。"
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require [kotoba.lang.text] [clojure.test :refer [deftest testing is]]
             [sekisho.didkey :as dk]))
 
 (def canonical
@@ -40,7 +40,7 @@
     (doseq [broken ["did:key:z6MkQUJDREVGR0hJSktMTU5PUFFSU1RVVldY"
                     "did:key:z6Mkm4t8x9k2"
                     "did:key:x"]]
-      (is (and (clojure.string/starts-with? broken "did:key:")
+      (is (and (kotoba.lang.text/starts-with? broken "did:key:")
                (> (count broken) 8))
           "旧判定を通らない例を選んでしまっている（テストの前提が壊れている）")
       (is (false? (dk/valid? broken)) (str broken " が新判定を通った")))))

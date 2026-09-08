@@ -36,7 +36,7 @@
 
   1 つにまとめると『鍵を失った = 口座を失った』か『鍵を共有した = 人格を共有
   した』のどちらかになる。分けてあるのはそのため。"
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def authority
   "DID の権威。**増やさない。**

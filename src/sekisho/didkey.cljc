@@ -34,7 +34,7 @@
   （`saifu.address` が ripemd160 を実装しないのと同じ線引き）。この ns は
   **32 byte の公開鍵を受け取って文字列にする**だけなので、資金も鍵も無しに
   正しさを証明できる。"
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def base58btc-alphabet
   "Bitcoin 系 base58。0/O/I/l を除く —— 目視で取り違える文字を外してある。

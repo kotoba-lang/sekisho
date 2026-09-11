@@ -104,7 +104,7 @@ DID の権威は `kotobase.net` 1 つ（ADR-2608039950）。第 2 authority を�
 
 ```bash
 clojure -M:test                              # 全部（.clj のテストを含む）
-nbb --classpath src:test run-tests.cljs      # .cljc の 2 本を ClojureScript で
+nbb --classpath src:test run-tests.cljk      # .cljc の 2 本を ClojureScript で
 ```
 
 `sekisho.assurance` と `sekisho.didkey` は Cloudflare Worker とブラウザで実際に

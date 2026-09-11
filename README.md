@@ -103,8 +103,8 @@ DID の権威は `kotobase.net` 1 つ（ADR-2608039950）。第 2 authority を�
 **発行済み DID の namespace は変えられない**。
 
 ```bash
-clojure -M:test                              # 全部（.clj のテストを含む）
-nbb --classpath src:test run-tests.cljk      # .cljc の 2 本を ClojureScript で
+kbb -M:test                              # 全部（.clj のテストを含む）
+kbb --backend sci --classpath src:test run-tests.cljk      # .cljc の 2 本を ClojureScript で
 ```
 
 `sekisho.assurance` と `sekisho.didkey` は Cloudflare Worker とブラウザで実際に

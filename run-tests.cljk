@@ -1,7 +1,7 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; ClojureScript 側で回せるテスト。
 ;;
-;;   nbb --classpath src:test run-tests.cljk
+;;   kbb --backend sci --classpath src:test run-tests.cljk
 ;;
 ;; `sekisho.account-test` と `sekisho.tenant-test` は `.clj` なのでここには
 ;; 載らない。載っているのは `.cljc` の 2 本 —— どちらも Cloudflare Worker と

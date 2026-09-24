@@ -51,7 +51,7 @@
   新しい WebAuthn の署名が要る**（cloud-itonami-app の ADR-0006 / ADR-0012）。
   段階は『いくらまで許されるか』を決め、`authority` が『この 1 件を本人が
   今承認したか』を決める。混ぜない。"
-  (:require [clojure.set :as set]))
+  (:require [kotoba.lang.coll :as set]))
 
 (def schema "sekisho.assurance.v1")
 

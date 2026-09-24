@@ -3,7 +3,7 @@
 
   **既存の 2 層を壊さないこと**が主眼 —— accountDid は発行済みの識別子で、
   segment を改名すると全部無効になる。"
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require [kotoba.test :refer [deftest testing is]]
             [sekisho.tenant :as t]))
 
 (deftest existing-account-did-shape-is-preserved

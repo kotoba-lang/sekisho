@@ -1,5 +1,5 @@
 (ns sekisho.assurance-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [sekisho.assurance :as a]))
 
 (def now 1785000000)                                    ; epoch 秒

@@ -1,7 +1,7 @@
 (ns sekisho.account-test
   "口座の契約。**壊れた口座を弾けること**と、
   『鍵はあるがバックアップしていない』を丸めないことが主眼。"
-  (:require [clojure.test :refer [deftest testing is]]
+  (:require [kotoba.test :refer [deftest testing is]]
             [sekisho.account :as a]
             [sekisho.didkey :as dk]))
 

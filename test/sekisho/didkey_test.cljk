@@ -4,7 +4,7 @@
   2026-08-03 実測: 本番の生成器は base64 を 32 文字に切ったもの、および
   タイムスタンプを口座にしたものを吐いており、検証側は `starts-with` しか
   見ていなかったので **両方通っていた**。ここで固定するのはその再発防止。"
-  (:require [kotoba.lang.text] [clojure.test :refer [deftest testing is]]
+  (:require [kotoba.lang.text] [kotoba.test :refer [deftest testing is]]
             [sekisho.didkey :as dk]))
 
 (def canonical
